@@ -2,11 +2,11 @@
 var userSchedule = [{
     id: 1,
     time: "07",
-    content: "TEST112"
+    content: "Example Entry.."
 }, {
     id: 2,
     time: "08",
-    content: "33"
+    content: ""
 }, {
     id: 3,
     time: "09",
@@ -46,12 +46,15 @@ var userSchedule = [{
 }, {
     id: 12,
     time: "18",
-    content: "12"
+    content: ""
 }];
 
 //DOM elements
 var currentDateTimeEl = $("#currentDay");
 var rowContainerEl = $(".container");
+
+//local storage data object array
+var existingEntries;
 
 $(document).ready(function() {
     //get and format current datetime then set it on an 1 sec interval
@@ -61,28 +64,37 @@ $(document).ready(function() {
         currentDateTimeEl.text(currentDateTime);
     }, 1000);
 
-
     function generateSchedule() {
-    //7 am to 7 pm, array of objects for time
-    for (let i = 0; i < userSchedule.length; i++) {
-        const element = userSchedule[i];
-        // var currentTime = moment('hh:mm:ss');
-        // var checkedTime = moment(element.time, 'hh:mm:ss');
-        // console.log(currentTime + " _ " + checkedTime);
-        //if moment('2010-10-20').isBefore('2010-10-21')
-        // if (moment().format('hh:mm:ss').isBefore('2010-10-21')) {
-        //     console.log("a " + element.time);
-        // }
-
-        //THIS SHOULD BE COMPARISON FOR IF - THEN each timeblock is color coded to indicate whether it is in the past, present, or future*
-        element.time < moment().format("HH")
-
-        // ADD data element with ID here for comparison 
-        var scheduleRow = "<form class='row' data-index-number='"+ element.id +"'><div class = 'col-md-2 hour'>" + element.time + 
-        "</div><div class = 'col-md-9 description p-0'><textarea class = 'past'>" + element.content + 
-        "</textarea></div><button class = 'col-md-1 save-button'><i class = 'far fa-save fa-lg'></i></button></form>";
-        rowContainerEl.append(scheduleRow);
-    }
+        //pull from local storage or use default object array
+        existingEntries = JSON.parse(localStorage.getItem("allSchedulerEntries"));
+        if (existingEntries == null) {
+            existingEntries = userSchedule;
+        }
+        //generate each row
+        var scheduleRow;
+        var firstHit = false;
+        var currentRowTextArea;
+        var isCurrentRowTimeBeforeNow;
+        for (let i = 0; i < existingEntries.length; i++) {
+            const element = existingEntries[i];
+            // ADD data element with ID here for comparison 
+            scheduleRow = "<form class='row' data-index-number='" + element.id + "'><div class = 'col-md-2 hour'>" + element.time +
+                "</div><div class = 'col-md-9 description p-0'><textarea class = 'past'>" + element.content +
+                "</textarea></div><button class = 'col-md-1 save-button'><i class = 'far fa-save fa-lg'></i></button></form>";
+            rowContainerEl.append(scheduleRow);
+            // if the time is current (not before) it will hit the 1st statement and time after the current time will hit the else if
+            //get current current textarea
+            currentRowTextArea = rowContainerEl.find("[data-index-number='" +
+                (i + 1) + "']").find(".description").find('textarea');
+            isCurrentRowTimeBeforeNow = element.time < moment().format("HH");
+            if (!isCurrentRowTimeBeforeNow && firstHit === false) {
+                //this will only happen once
+                firstHit = true;
+                currentRowTextArea.addClass("present");
+            } else if (!isCurrentRowTimeBeforeNow) {
+                currentRowTextArea.addClass("future");
+            }
+        }
     }
 
     //on page load
@@ -96,10 +108,19 @@ $(document).ready(function() {
     $(".save-button").on("click", function(event) {
         event.preventDefault();
         //get id of row
-        console.log($(this).parent().attr("data-index-number"));
+        var indexNumber = $(this).parent().attr("data-index-number");
         //get text of row
-        console.log($(this).parent().find(".past")[0].innerHTML);
+        var userEntry = $(this).parent().find(".past").val();
+        //find in object array and assign user entry to it
+        for (let i = 0; i < existingEntries.length; i++) {
+            const element = existingEntries[i];
+            if (element.id == indexNumber) {
+                existingEntries[i].content = userEntry;
+                break;
+            }
+        }
+        console.log(existingEntries);
+        //put in local storage
+        localStorage.setItem("allSchedulerEntries", JSON.stringify(existingEntries));
     })
-
 });
-
