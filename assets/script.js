@@ -2,50 +2,62 @@
 var userSchedule = [{
     id: 1,
     time: "07",
+    display: "7:00am",
     content: "Example Entry.."
 }, {
     id: 2,
     time: "08",
+    display: "8:00am",
     content: ""
 }, {
     id: 3,
     time: "09",
+    display: "9:00am",
     content: ""
 }, {
     id: 4,
     time: "10",
+    display: "10:00am",
     content: ""
 }, {
     id: 5,
     time: "11",
+    display: "11:00am",
     content: ""
 }, {
     id: 6,
     time: "12",
+    display: "12:00pm",
     content: ""
 }, {
     id: 7,
     time: "13",
+    display: "1:00pm",
     content: ""
 }, {
     id: 8,
     time: "14",
+    display: "2:00pm",
     content: ""
 }, {
     id: 9,
     time: "15",
+    display: "3:00pm",
     content: ""
 }, {
     id: 10,
     time: "16",
+    display: "4:00pm",
     content: ""
 }, {
     id: 11,
     time: "17",
+    display: "5:00pm",
     content: ""
 }, {
     id: 12,
     time: "18",
+    display: "6:00pm",
     content: ""
 }];
 
@@ -78,7 +90,7 @@ $(document).ready(function() {
         for (let i = 0; i < existingEntries.length; i++) {
             const element = existingEntries[i];
             // ADD data element with ID here for comparison 
-            scheduleRow = "<form class='row' data-index-number='" + element.id + "'><div class = 'col-md-2 hour'>" + element.time +
+            scheduleRow = "<form class='row' data-index-number='" + element.id + "'><div class = 'col-md-2 hour'>" + element.display +
                 "</div><div class = 'col-md-9 description p-0'><textarea class = 'past'>" + element.content +
                 "</textarea></div><button class = 'col-md-1 save-button'><i class = 'far fa-save fa-lg'></i></button></form>";
             rowContainerEl.append(scheduleRow);
@@ -119,7 +131,6 @@ $(document).ready(function() {
                 break;
             }
         }
-        console.log(existingEntries);
         //put in local storage
         localStorage.setItem("allSchedulerEntries", JSON.stringify(existingEntries));
     })
